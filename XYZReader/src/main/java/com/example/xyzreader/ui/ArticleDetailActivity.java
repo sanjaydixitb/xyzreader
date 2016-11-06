@@ -15,6 +15,8 @@ import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +29,7 @@ import com.example.xyzreader.data.ItemsContract;
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
  */
-public class ArticleDetailActivity extends ActionBarActivity
+public class ArticleDetailActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Cursor mCursor;
@@ -42,6 +44,8 @@ public class ArticleDetailActivity extends ActionBarActivity
     private MyPagerAdapter mPagerAdapter;
     private DynamicHeightNetworkImageView backdrop;
     private FloatingActionButton fabShare;
+    private Toolbar toolbar ;
+    private CollapsingToolbarLayout collapsingToolbarLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +58,10 @@ public class ArticleDetailActivity extends ActionBarActivity
         setContentView(R.layout.activity_article_detail);
         backdrop = (DynamicHeightNetworkImageView) findViewById(R.id.backdrop);
         fabShare = (FloatingActionButton) findViewById(R.id.fab_share);
-        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getLoaderManager().initLoader(0, null, this);
 
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
@@ -81,7 +88,7 @@ public class ArticleDetailActivity extends ActionBarActivity
                 backdrop.setBackgroundColor(getResources().getColor(R.color.theme_primary));
                 backdrop.setImageUrl( mCursor.getString(ArticleLoader.Query.THUMB_URL),
                         ImageLoaderHelper.getInstance(ArticleDetailActivity.this).getImageLoader());
-
+                collapsingToolbarLayout.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
             }
         });
 
@@ -102,6 +109,8 @@ public class ArticleDetailActivity extends ActionBarActivity
             if (getIntent() != null && getIntent().getData() != null) {
                 mStartId = ItemsContract.Items.getItemId(getIntent().getData());
                 mSelectedItemId = mStartId;
+                if (mCursor != null)
+                    mCursor.moveToPosition(mPager.getCurrentItem());
             }
         }
     }
@@ -124,6 +133,7 @@ public class ArticleDetailActivity extends ActionBarActivity
                 if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
                     final int position = mCursor.getPosition();
                     mPager.setCurrentItem(position, false);
+                    collapsingToolbarLayout.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
                     break;
                 }
                 mCursor.moveToNext();
