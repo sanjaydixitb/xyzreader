@@ -36,4 +36,9 @@
 
     <style name="Theme.Bacon.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <attr name="fontName" format="string" />
+    <declare-styleable name="MyFontTV">
+        <attr name="fontName" />
+    </declare-styleable>
+
 </resources>
